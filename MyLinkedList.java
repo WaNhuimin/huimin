@@ -1,71 +1,183 @@
 class Node {
     int val;
-    Node next = null;
+    Node next = null;   // 指向后继结点，最后一个结点的 next == null
+    Node prev = null;   // 指向前驱结点，第一个结点的 prev == null
 
     Node(int val) {
         this.val = val;
     }
-
-    public String toString() {
-        return String.format("Node(%d)", val);
-    }
 }
+public class MyLinkedList {
+    private Node head = null;
+    private Node last = null;
+    private int size = 0;
 
-class Solution {
-    public Node removeElements(Node head, int val) {
-        Node result = null;
-        Node last = null;   // 记录目前 result 中的最后一个结点
+    public void pushFront(int val) {
+        Node node = new Node(val);
+        node.next = head;
+        if (head != null) {
+            head.prev = node;
+        } else {
+            last = node;
+        }
+        head = node;
 
-        Node cur = head;
-        while (cur != null) {
-            if (cur.val == val) {
-                cur = cur.next;
-                continue;
-            }
+        size++;
+    }
 
-            Node next = cur.next;
-
-            cur.next = null;
-            if (result == null) {
-                result = cur;
-            } else {
-                last.next = cur;
-            }
-
-            last = cur;
-
-            cur = next;
+    public void popFront() {
+        if (size <= 0) {
+            System.out.println("无法对空链表做删除");
+            return;
         }
 
-        return result;
-    }
-}
-
-public class MyLinkedList {
-    public static void main(String[] args) {
-        Node head = new Node(1);
-        head.next = new Node(2);
-        head.next.next = new Node(3);
-        head.next.next.next = new Node(4);
-
-        Node pos = head.next.next;
-        pushAfter(pos, 100);
-
-        // 1, 2, 3, 100, 4
+        head = head.next;
+        if (head != null) {
+            head.prev = null;
+        } else {
+            last = null;
+        }
+        size--;
     }
 
-    private static void pushAfter(Node pos, int val) {
+    void pushBack(int val) {
         Node node = new Node(val);
+        if (last == null) {
+            head = node;
+        } else {
+            last.next = node;
+        }
+        node.prev = last;
+        last = node;
 
-        node.next = pos.next;
-        pos.next = node;
+        size++;
     }
 
-    private static void popAfter(Node pos) {
-        pos.next = pos.next.next;
+    void popBack() {
+        if (size <= 0) {
+            System.out.println("无法对空链表做删除");
+            return;
+        }
+
+        if (last == head) {
+            head = last = null;
+        } else {
+            last.prev.next = null;
+            last = last.prev;
+        }
+
+        size--;
+    }
+
+    public void add(int index, int val) {
+        if (index < 0 || index > size) {
+            System.out.println("下标错误");
+            return;
+        }
+        if (index == 0) {
+            pushFront(val);
+        } else if (index == size) {
+            pushBack(val);
+        } else {
+            Node pos = getNode(index);
+            Node node = new Node(val);
+            node.prev = pos.prev;
+            node.next = pos;
+            node.prev.next = node;
+            node.next.prev = node;
+
+            size++;
+        }
+    }
+
+    public void remove(int index) {
+        if (size <= 0) {
+            System.out.println("无法对空链表做删除");
+            return;
+        }
+
+        if (index < 0 || index >= size) {
+            System.out.println("下标错误");
+            return;
+        }
+
+        if (index == 0) {
+            popFront();
+        } else if (index == size - 1) {
+            popBack();
+        } else {
+            Node pos = getNode(index);
+            pos.prev.next = pos.next;
+            pos.next.prev = pos.prev;
+            size--;
+        }
+    }
+
+    // 代码的复用性
+    private Node getNode(int index) {
+        // 不需要校验 index 的合法性
+        // 因为使用者 add 和 remove 已经做过类似工作了
+        int backwardIndex = size - index - 1;
+        Node pos;
+        if (index <= backwardIndex) {
+            pos = head;
+            for (int i = 0; i < index; i++) {
+                pos = pos.next;
+            }
+        } else {
+            pos = last;
+            for (int i = 0; i < backwardIndex; i++) {
+                pos = pos.prev;
+            }
+        }
+
+        return pos;
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    public void reset() {
+        head = last = null;
+        size = 0;
+    }
+
+    public static void main(String[] args) {
+        MyLinkedList list = new MyLinkedList();
+        list.pushFront(1);
+        list.pushFront(2);
+        list.pushFront(3);
+        System.out.println("3 2 1");
+        list.popFront();
+        list.popFront();
+        list.popFront();
+        System.out.println("");
+        list.pushBack(10);
+        list.pushBack(20);
+        list.pushBack(30);
+        System.out.println("10 20 30");
+        list.popBack();
+        list.popBack();
+        list.popBack();
+        System.out.println("");
+        list.pushBack(1);
+        list.pushBack(2);
+        list.pushBack(3);
+        list.pushBack(4);
+        list.pushBack(5);
+        System.out.println("1 2 3 4 5");
+        list.add(1, 10);
+        System.out.println("1 10 2 3 4 5");
+        list.add(5, 20);
+        System.out.println("1 10 2 3 4 20 5");
+        list.remove(1);
+        System.out.println("1 2 3 4 20 5");
+        list.remove(4);
+        System.out.println("1 2 3 4 5");
     }
 }
-
-
-
-
