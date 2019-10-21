@@ -1,18 +1,21 @@
+class CheckedException extends Exception {}
+class CheckedException2 extends Exception {}
+class UncheckedException extends RuntimeException {}
+
 public class ExceptionDemo {
-    public static void throwExceptionMethod(boolean isThrow) {
-        System.out.println("抛异常之前");
-        if (isThrow) {
-            throw new NullPointerException();
+    public static void throwCheckedException() throws CheckedException, CheckedException2 {
+        if (true) {
+            throw new CheckedException();
+        } else {
+            throw new CheckedException2();
         }
-        System.out.println("抛异常之后");
     }
-    public static void main(String[] args) {
-        try {
-            throwExceptionMethod(true);
-        } catch (NullPointerException exc) {
-            System.out.println("捕获到异常");
-        } finally {
-            System.out.println("总得过来一趟");
-        }
+
+    public static void throwUncheckedException() {
+        throw new UncheckedException();
+    }
+
+    public static void main(String[] args) throws CheckedException, CheckedException2 {
+        throwCheckedException();
     }
 }
